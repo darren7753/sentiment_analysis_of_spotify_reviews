@@ -1,0 +1,8 @@
+pandas==2.1.4
+nltk==3.8.1
+plotly==5.9.0
+streamlit==1.30.0
+streamlit-option-menu==0.3.12
+scikit-learn==1.2.2
+Sastrawi==1.0.1
+joblib==1.2.0
