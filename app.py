@@ -397,7 +397,8 @@ def prediksi_page():
             "Bahasa",
             ["🇮🇩 ID", "🇺🇸 EN"],
             index=None,
-            label_visibility="collapsed"
+            label_visibility="collapsed",
+            placeholder="Pilih bahasa"
         )
 
     with col2:
