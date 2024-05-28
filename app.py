@@ -410,7 +410,7 @@ def prediksi_page():
         if pred_button:
             if not language or language == "":
                 if not text_input:
-                    error_message = "Pilih bahasa DAN masukkan teks ulasan terlebih dahulu"
+                    error_message = "Pilih bahasa dan masukkan teks ulasan terlebih dahulu"
                 else:
                     error_message = "Pilih bahasa terlebih dahulu"
             elif not text_input:
