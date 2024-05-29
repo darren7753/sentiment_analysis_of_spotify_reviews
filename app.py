@@ -1,3 +1,4 @@
+# Importing required libraries
 import re
 import nltk
 import pandas as pd
@@ -12,20 +13,24 @@ from streamlit_option_menu import option_menu
 from plotly.subplots import make_subplots
 from joblib import load
 
+# Downloading required NLTK data
 nltk.download("punkt")
 nltk.download("stopwords")
 
+# Setting page configuration for Streamlit app
 st.set_page_config(
     page_title="Sentimen Ulasan Spotify",
     layout="wide"
 )
 
+# Function to label the score as 'Negatif' or 'Positif'
 def labeling(score):
     if score < 4:
         return "Negatif"
     elif score > 3 :
         return "Positif"
 
+# Function to fetch data from CSV file and preprocess it
 @st.cache_data
 def fetch_data(file):
     data = pd.read_csv(file)
@@ -33,11 +38,12 @@ def fetch_data(file):
     data["label"] = data["score"].apply(labeling)
     return data
 
-# Cleaning
+# Function to convert text to lowercase
 def casefolding(text):
     text = text.lower()
     return text
 
+# Function to clean text by removing URLs, mentions, hashtags, numbers, and punctuations
 def cleaning(text):
     text = re.sub(r"@[A-Za-a0-9]+", " ",text)
     text = re.sub(r"#[A-Za-z0-9]+", " ",text)
@@ -47,36 +53,49 @@ def cleaning(text):
     text = text.strip(" ")
     return text
 
+# Function to remove emojis from text
 def emoji(text):
     return text.encode("ascii", "ignore").decode("ascii")
 
+# Function to replace repeated characters with a single character
 def replace(text):
     pola = re.compile(r"(.)\1{2,}", re.DOTALL)
     return pola.sub(r"\1", text)
 
+# Function to tokenize text into words
 def tokenizing(text):
     text = word_tokenize(text)
     return text
 
+# List of Indonesian stopwords
 daftar_stopword_id = stopwords.words("indonesian")
+# Function to remove Indonesian stopwords from text
 def stopwordText_ID(text):
     return [word for word in text if word not in daftar_stopword_id]
 
+# List of English stopwords
 daftar_stopwor_en = stopwords.words("english")
+# Function to remove English stopwords from text
 def stopwordText_EN(text):
     return [word for word in text if word not in daftar_stopwor_en]
 
+# Creating an instance of Indonesian stemmer
 stemmer_id = StemmerFactory().create_stemmer()
+# Function to stem Indonesian words
 def stemmed_wrapper_ID(text):
     return stemmer_id.stem(text)
 
+# Creating an instance of English stemmer
 stemmer_en = PorterStemmer()
+# Function to stem English words
 def stemmed_wrapper_EN(term):
     return stemmer_en.stem(term)
 
+# Function to join a list of words into a single string
 def join_text_list(text):
     return " ".join(text)
 
+# Function to preprocess text based on the selected language
 def preprocess_text(text, language):
     text = casefolding(text)
     text = cleaning(text)
@@ -93,6 +112,7 @@ def preprocess_text(text, language):
 
     return text
 
+# Function to display the home page
 def home_page():
     df_ulasan_id = fetch_data("Ulasan Spotify id.csv")
     df_ulasan_en = fetch_data("Ulasan Spotify En.csv")
@@ -102,6 +122,7 @@ def home_page():
     st.write("")
     st.write("")
 
+    # Displaying welcome message and application description
     st.markdown(
         "<p style='font-size:17px;'>Selamat datang di prediksi ulasan aplikasi Spotify dengan menggunakan algoritma Random Forest. Aplikasi ini dapat digunakan untuk melakukan prediksi ulasan aplikasi Spotify dengan kategori positif dan negatif berdasarkan teks yang diinput.</p>",
         unsafe_allow_html=True
@@ -110,14 +131,15 @@ def home_page():
     st.write("")
     st.write("")
 
+    # Displaying Spotify logo
     with open("Spotify Logo.svg", "r") as f:
         spotify_logo = f.read()
-
     st.markdown(f"<div style='text-align:center;'>{spotify_logo}</div>", unsafe_allow_html=True)
 
     st.write("")
     st.write("")
 
+    # Displaying information about Spotify application
     st.markdown(
         "<p style='font-size:17px;'>Spotify merupakan aplikasi streaming musik digital yang banyak digunakan untuk mengakses lagu, podcast, dan konten audio dari seluruh dunia. Aplikasi ini termasuk aplikasi yang banyak diunduh dan mendapat penilaian rata-rata 4.4, menjadi salah satu aplikasi streaming musik yang banyak digunakan dan populer di dunia serta bisa diakses secara premium atau pun gratis.</p>",
         unsafe_allow_html=True
@@ -136,6 +158,7 @@ def home_page():
     st.write("")
     st.write("")
 
+    # Displaying bar charts for data counts
     fig = make_subplots(
         rows=1,
         cols=2,
@@ -191,6 +214,7 @@ def home_page():
     st.write("")
     st.write("")
 
+    # Displaying pie charts for positive and negative review percentages
     fig = make_subplots(
         rows=1,
         cols=2,
@@ -258,6 +282,7 @@ def home_page():
         unsafe_allow_html=True
     )
 
+    # Displaying information about oversampling
     st.divider()
     st.subheader("Oversampling")
 
@@ -275,6 +300,7 @@ def home_page():
     before_oversampling_en = pd.Series({"Negatif": 891, "Positif": 109})
     after_oversampling_en = pd.Series({"Negatif": 891, "Positif": 891})
 
+    # Displaying bar charts for data counts before and after oversampling (Indonesian)
     fig = make_subplots(
         rows=1, 
         cols=2, 
@@ -330,6 +356,7 @@ def home_page():
     st.write("")
     st.write("")
 
+    # Displaying bar charts for data counts before and after oversampling (English)
     fig = make_subplots(
         rows=1, 
         cols=2, 
@@ -382,6 +409,7 @@ def home_page():
         unsafe_allow_html=True
     )
 
+# Function to display the prediction page
 def prediksi_page():
     st.markdown("<h1 style='text-align: center;'>Prediksi Ulasan Spotify</h1>", unsafe_allow_html=True)
 
@@ -391,6 +419,7 @@ def prediksi_page():
     result = None
     error_message = None
 
+    # Displaying input fields for language and text review
     col1, col2, col3 = st.columns([0.3, 1, 0.1])
     with col1:
         language = st.selectbox(
@@ -407,7 +436,9 @@ def prediksi_page():
     with col3:
         pred_button = st.button("Prediksi", type="primary", use_container_width=True)
 
+        # Checking if the prediction button is clicked
         if pred_button:
+            # Validating input fields
             if not language or language == "":
                 if not text_input:
                     error_message = "Pilih bahasa dan masukkan teks ulasan terlebih dahulu"
@@ -416,6 +447,7 @@ def prediksi_page():
             elif not text_input:
                 error_message = "Masukkan teks ulasan terlebih dahulu"
             else:
+                # Loading the appropriate model and vectorizer based on the selected language
                 if language == "🇮🇩 ID":
                     model = load("rf_model_id.joblib")
                     vectorizer = load("vectorizer_id.joblib")
@@ -423,17 +455,24 @@ def prediksi_page():
                     model = load("rf_model_en.joblib")
                     vectorizer = load("vectorizer_en.joblib")
                 
+                # Preprocessing the input text
                 preprocessed_text = preprocess_text(text_input, language)
                 text_input = join_text_list(preprocessed_text)
+
+                # Vectorizing the preprocessed text
                 vectorized_text_input = vectorizer.transform([text_input])
+
+                # Making the prediction
                 result = model.predict(vectorized_text_input)[0]
                 probability = max(model.predict_proba(vectorized_text_input)[0])
 
+    # Displaying the result
     if error_message:
         st.error(error_message, icon="🚨")
     elif result is not None:
         st.info(f"Ulasan tersebut {result.upper()} dengan probabilitas {(probability * 100):.2f}%", icon="ℹ️")
 
+# Displaying the navigation menu
 page_options = option_menu(
     menu_title=None,
     options=["Home", "Prediksi"],
@@ -442,6 +481,7 @@ page_options = option_menu(
     default_index=0
 )
 
+# Rendering the selected page
 if page_options == "Home":
     home_page()
 else:
